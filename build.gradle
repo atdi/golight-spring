@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+}
+
+sourceCompatibility = 1.8
+
+configurations {
+    loader
+}
+
+group 'com.github.atdi'
+version '1.0-SNAPSHOT'
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.6'
+  distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring dependencies
+    //compile("org.glassfish.jersey.ext:jersey-spring3:$jerseyVersion")
+    compile("org.glassfish.hk2:spring-bridge:2.3.0")
+    compile("org.springframework:spring-beans:$springVersion")
+    compile("org.springframework:spring-core:$springVersion")
+    // Jersey dependencies
+    compile("org.glassfish.jersey.core:jersey-server:$jerseyVersion")
+    compile("org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion")
+    compile("org.glassfish.jersey.media:jersey-media-json-jackson:$jerseyVersion")
+
+    // Embedded jetty dependencies
+    compile("org.eclipse.jetty:jetty-server:$jettyVersion")
+    compile("org.eclipse.jetty:jetty-servlet:$jettyVersion")
+
+    // Spring boot loader dependency
+    loader("org.springframework.boot:spring-boot-loader:$springBootLoaderVersion")
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+
+task unpackLoader(type: Copy) {
+    from {
+        configurations.loader.collect {
+            zipTree(it)
+        }
+
+    }
+    include '**/*.class'
+    into "$buildDir/classes/main/"
+
+    includeEmptyDirs = false
+
+}
+
+jar {
+    dependsOn unpackLoader
+    into('lib') {
+        from configurations.runtime
+    }
+    entryCompression org.gradle.api.tasks.bundling.ZipEntryCompression.STORED
+    manifest {
+        attributes("Main-Class": "org.springframework.boot.loader.JarLauncher",
+                "Start-Class": "com.github.atdi.golight.spring.Bootstrap")
+    }
+}
