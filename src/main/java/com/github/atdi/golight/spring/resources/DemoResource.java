@@ -1,8 +1,6 @@
 package com.github.atdi.golight.spring.resources;
 
 import com.github.atdi.golight.spring.services.DummyService;
-import org.springframework.stereotype.Component;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
